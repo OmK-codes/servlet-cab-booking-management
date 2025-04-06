@@ -5,8 +5,6 @@
 <web-app>
 
   <display-name>Cab Booking Web Application</display-name>
-
-  <!-- Servlet declarations come before mappings -->
   <servlet>
     <servlet-name>VehicleController</servlet-name>
     <servlet-class>com.omkcodes.cab_booking.controller.VehicleController</servlet-class>
@@ -17,7 +15,6 @@
     <servlet-class>com.omkcodes.cab_booking.controller.BookingController</servlet-class>
   </servlet>
 
-  <!-- Servlet mappings must come after all servlet declarations -->
   <servlet-mapping>
     <servlet-name>VehicleController</servlet-name>
     <url-pattern>/vehicle</url-pattern>
