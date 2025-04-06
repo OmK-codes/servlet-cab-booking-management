@@ -1,102 +1,73 @@
 package com.omkcodes.cab_booking.controller;
 
 import com.omkcodes.cab_booking.exception.InvalidBookingIDException;
+import com.omkcodes.cab_booking.model.Booking;
 import com.omkcodes.cab_booking.service.BookingService;
+import com.omkcodes.cab_booking.service.impl.BookingServiceImpl;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
 
-import java.util.Scanner;
+import java.io.IOException;
+import java.io.PrintWriter;
 
-public class BookingController {
-    private final Scanner scanner;
-    private final BookingService bookingService;
+@WebServlet("/booking")
+public class BookingControllerServlet extends HttpServlet {
 
-    public BookingController(Scanner scanner, BookingService bookingService) {
-        this.scanner = scanner;
-        this.bookingService = bookingService; // Use the provided instance instead of creating a new one.
+    private BookingService bookingService;
+
+    @Override
+    public void init() throws ServletException {
+        bookingService = new BookingServiceImpl(); // Adjust if constructor requires repositories
     }
 
-    public void run() {
-        int option;
-        do {
-            displayMenu();
-            option = getIntInput("Enter your choice:");
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-            switch (option) {
-                case 1 -> createBooking();
-                case 2 -> bookingService.showAllBookings();
-                case 3 -> displayBookingDetails();
-                case 9 -> System.out.println("Returning to main menu...");
-                default -> System.out.println("Invalid option. Please try again.");
-            }
-        } while (option != 9);
-    }
+        // Get form parameters
+        String bookingId = request.getParameter("bookingId");
+        String passengerId = request.getParameter("passengerId");
+        String passengerName = request.getParameter("passengerName");
+        String driverId = request.getParameter("driverId");
+        String driverName = request.getParameter("driverName");
+        String vehicleId = request.getParameter("vehicleId");
+        String pickupLocation = request.getParameter("pickupLocation");
+        String dropLocation = request.getParameter("dropLocation");
+        double fare = Double.parseDouble(request.getParameter("fare"));
+        double distance = Double.parseDouble(request.getParameter("distance"));
+        String status = request.getParameter("status");
 
-    private void displayMenu() {
-        System.out.println("""
-                \n=== Booking Management ===
-                1. Create a new booking
-                2. Show all bookings
-                3. Display booking details
-                9. Return to main menu
-                """);
-    }
-
-    private void createBooking() {
-        String bookingId = getStringInput("Enter Booking ID:");
-        String passengerId = getStringInput("Enter Passenger ID:");
-        String passengerName = getStringInput("Enter Passenger Name:");
-        String driverId = getStringInput("Enter Driver ID:");
-        String driverName = getStringInput("Enter Driver Name:");
-        String vehicleId = getStringInput("Enter Vehicle ID:");
-        String pickupLocation = getStringInput("Enter Pickup Location:");
-        String dropLocation = getStringInput("Enter Drop Location:");
-        double fare = getDoubleInput("Enter Fare:");
-        double distance = getDoubleInput("Enter Distance:");
-        String status = getStringInput("Enter Booking Status (PENDING/CONFIRMED/COMPLETED/CANCELLED):");
+        response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
 
         try {
             bookingService.createNewBooking(
-                    bookingId, passengerId, passengerName, driverId, driverName, vehicleId,
-                    pickupLocation, dropLocation, fare, distance, status
+                    bookingId, passengerId, passengerName, driverId, driverName,
+                    vehicleId, pickupLocation, dropLocation, fare, distance, status
             );
-            System.out.println("Booking created successfully!");
-        } catch (Exception e) {
-            System.out.println("Error creating booking: " + e.getMessage());
-        }
-    }
 
-    private void displayBookingDetails() {
-        String bookingId = getStringInput("Enter Booking ID:");
-        try {
-            bookingService.displayBookingDetails(bookingService.getBookingById(bookingId));
+            out.println("<h2 style='color:green;'>Booking created successfully!</h2>");
+            out.println("<p><a href='booking-form.html'>Back to Booking Form</a></p>");
+
         } catch (InvalidBookingIDException e) {
-            System.out.println("Error: " + e.getMessage());
+            out.println("<h2 style='color:red;'>Error: " + e.getMessage() + "</h2>");
+        } catch (Exception e) {
+            out.println("<h2 style='color:red;'>Unexpected Error: " + e.getMessage() + "</h2>");
         }
     }
 
-    private String getStringInput(String message) {
-        System.out.print(message + " ");
-        return scanner.nextLine().trim();
-    }
+    // Optional: handle GET requests to show all bookings
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-    private int getIntInput(String message) {
-        while (true) {
-            try {
-                System.out.print(message + " ");
-                return Integer.parseInt(scanner.nextLine().trim());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid number.");
-            }
-        }
-    }
+        response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
 
-    private double getDoubleInput(String message) {
-        while (true) {
-            try {
-                System.out.print(message + " ");
-                return Double.parseDouble(scanner.nextLine().trim());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid decimal number.");
-            }
+        out.println("<h2>All Bookings</h2>");
+        for (Booking booking : bookingService.getBookingList()) {
+            out.println("<p>" + booking + "</p>");
         }
     }
 }
