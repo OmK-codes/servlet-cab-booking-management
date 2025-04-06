@@ -3,16 +3,33 @@
         "http://java.sun.com/dtd/web-app_2_3.dtd">
 
 <web-app>
-  <display-name>Archetype Created Web Application</display-name>
 
-  <!-- Register VehicleController servlet -->
+  <display-name>Cab Booking Web Application</display-name>
+
+  <!-- Servlet declarations come before mappings -->
   <servlet>
     <servlet-name>VehicleController</servlet-name>
     <servlet-class>com.omkcodes.cab_booking.controller.VehicleController</servlet-class>
   </servlet>
 
+  <servlet>
+    <servlet-name>BookingController</servlet-name>
+    <servlet-class>com.omkcodes.cab_booking.controller.BookingController</servlet-class>
+  </servlet>
+
+  <!-- Servlet mappings must come after all servlet declarations -->
   <servlet-mapping>
     <servlet-name>VehicleController</servlet-name>
     <url-pattern>/vehicle</url-pattern>
   </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>BookingController</servlet-name>
+    <url-pattern>/booking</url-pattern>
+  </servlet-mapping>
+
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+  </welcome-file-list>
+
 </web-app>

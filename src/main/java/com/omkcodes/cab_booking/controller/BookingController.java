@@ -2,6 +2,7 @@ package com.omkcodes.cab_booking.controller;
 
 import com.omkcodes.cab_booking.exception.InvalidBookingIDException;
 import com.omkcodes.cab_booking.model.Booking;
+import com.omkcodes.cab_booking.repository.BookingRepository;
 import com.omkcodes.cab_booking.service.BookingService;
 import com.omkcodes.cab_booking.service.impl.BookingServiceImpl;
 import jakarta.servlet.ServletException;
@@ -10,30 +11,30 @@ import jakarta.servlet.http.*;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
 @WebServlet("/booking")
-public class BookingControllerServlet extends HttpServlet {
+public class BookingController extends HttpServlet {
 
     private BookingService bookingService;
 
     @Override
     public void init() throws ServletException {
-        bookingService = new BookingServiceImpl(); // Adjust if constructor requires repositories
+        this.bookingService = new BookingServiceImpl(new BookingRepository());
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // Get form parameters
         String bookingId = request.getParameter("bookingId");
         String passengerId = request.getParameter("passengerId");
         String passengerName = request.getParameter("passengerName");
         String driverId = request.getParameter("driverId");
         String driverName = request.getParameter("driverName");
         String vehicleId = request.getParameter("vehicleId");
-        String pickupLocation = request.getParameter("pickupLocation");
-        String dropLocation = request.getParameter("dropLocation");
+        String pickupLocation = request.getParameter("pickup");
+        String dropLocation = request.getParameter("drop");
         double fare = Double.parseDouble(request.getParameter("fare"));
         double distance = Double.parseDouble(request.getParameter("distance"));
         String status = request.getParameter("status");
@@ -42,12 +43,13 @@ public class BookingControllerServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
 
         try {
-            bookingService.createNewBooking(
+            Booking booking = this.bookingService.createNewBooking(
                     bookingId, passengerId, passengerName, driverId, driverName,
                     vehicleId, pickupLocation, dropLocation, fare, distance, status
             );
 
             out.println("<h2 style='color:green;'>Booking created successfully!</h2>");
+            out.println("<p>" + booking + "</p>");
             out.println("<p><a href='booking-form.html'>Back to Booking Form</a></p>");
 
         } catch (InvalidBookingIDException e) {
@@ -57,7 +59,6 @@ public class BookingControllerServlet extends HttpServlet {
         }
     }
 
-    // Optional: handle GET requests to show all bookings
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -66,8 +67,16 @@ public class BookingControllerServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
 
         out.println("<h2>All Bookings</h2>");
-        for (Booking booking : bookingService.getBookingList()) {
-            out.println("<p>" + booking + "</p>");
+        List<Booking> bookings = this.bookingService.getAllBookings();
+
+        if (bookings.isEmpty()) {
+            out.println("<p>No bookings available.</p>");
+        } else {
+            for (Booking booking : bookings) {
+                out.println("<p>" + booking + "</p>");
+            }
         }
+
+        out.println("<p><a href='booking-form.html'>Back to Booking Form</a></p>");
     }
 }

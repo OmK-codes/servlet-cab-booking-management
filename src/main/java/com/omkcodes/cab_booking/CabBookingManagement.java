@@ -1,9 +1,7 @@
 package com.omkcodes.cab_booking;
 
-import com.omkcodes.cab_booking.controller.BookingController;
 import com.omkcodes.cab_booking.controller.DriverController;
 import com.omkcodes.cab_booking.controller.PassengerController;
-// Removed VehicleController import since it's now a servlet
 
 import com.omkcodes.cab_booking.repository.BookingRepository;
 import com.omkcodes.cab_booking.repository.DriverRepository;
@@ -17,6 +15,7 @@ import com.omkcodes.cab_booking.service.impl.VehicleServiceImpl;
 import java.util.Scanner;
 
 public class CabBookingManagement {
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
@@ -25,7 +24,6 @@ public class CabBookingManagement {
         VehicleRepository vehicleRepository = new VehicleRepository();
         BookingRepository bookingRepository = new BookingRepository();
 
-        // Passing repository instances to service implementations
         DriverServiceImpl driverService = new DriverServiceImpl(driverRepository);
         PassengerServiceImpl passengerService = new PassengerServiceImpl(passengerRepository);
         VehicleServiceImpl vehicleService = new VehicleServiceImpl(vehicleRepository);
@@ -34,10 +32,7 @@ public class CabBookingManagement {
         DriverController driverController = new DriverController(scanner, driverService);
         PassengerController passengerController = new PassengerController(scanner, passengerService);
 
-        // VehicleController is now managed by servlet, not CLI and only vehicle controller is updated other are remaining.
-
-        BookingController bookingController = new BookingController(scanner, bookingService);
-
+        // Booking and Vehicle are now servlet-based, not CLI
         int mainOption;
         do {
             displayMainMenu();
@@ -46,14 +41,18 @@ public class CabBookingManagement {
                 case 1 -> driverController.run();
                 case 2 -> passengerController.run();
                 case 3 -> {
-                    System.out.println("\n Vehicle management is now web-based.");
-                    System.out.println("Please access it via: http://localhost:8080/your-project-name/vehicle");
+                    System.out.println("\nVehicle management is now web-based.");
+                    System.out.println("Access it via browser: http://localhost:8080/vehicle");
                 }
-                case 4 -> bookingController.run();
+                case 4 -> {
+                    System.out.println("\nBooking management is now web-based.");
+                    System.out.println("Access it via browser: http://localhost:8080/booking");
+                }
                 case 0 -> System.out.println("Exiting... Thank you for using Cab Booking Management!");
                 default -> System.out.println("Invalid option, please try again.");
             }
         } while (mainOption != 0);
+
         scanner.close();
     }
 
@@ -61,8 +60,8 @@ public class CabBookingManagement {
         System.out.println("\n=== CAB BOOKING MANAGEMENT ===");
         System.out.println("1. Manage Drivers");
         System.out.println("2. Manage Passengers");
-        System.out.println("3. Manage Vehicles (Now Web-Based)");
-        System.out.println("4. Manage Bookings");
+        System.out.println("3. Manage Vehicles (Web-Based)");
+        System.out.println("4. Manage Bookings (Web-Based)");
         System.out.println("0. Exit");
     }
 

@@ -79,4 +79,9 @@ public class BookingServiceImpl implements BookingService {
                 .filter(booking -> booking.getStatus() == status)
                 .toList();
     }
+    @Override
+    public List<Booking> getAllBookings() {
+        return bookingRepository.getAllBookings();
+    }
+
 }
